@@ -1,0 +1,20 @@
+def minSdkVersion = 19
+
+if(cdvMinSdkVersion == null) {
+    ext.cdvMinSdkVersion = minSdkVersion;
+} else if (cdvMinSdkVersion.toInteger() < minSdkVersion) {
+    ext.cdvMinSdkVersion = minSdkVersion;
+}
+
+repositories{
+    jcenter()
+    flatDir{
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.aar'], dir: 'libs')
+    compile 'com.google.code.gson:gson:2.8.1'
+    compile 'com.android.support.constraint:constraint-layout:1.1.3'
+}

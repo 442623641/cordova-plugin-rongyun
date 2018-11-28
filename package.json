@@ -1,0 +1,28 @@
+{
+  "name": "rongyun",
+  "version": "0.0.1",
+  "description": "Cordova Rongyun Plugin,use Rongyun IM SDK",
+  "cordova": {
+    "id": "cordova-plugin-rongyun",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "keywords": [
+    "cordova",
+    "Rongyun",
+    "IM",
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "engines": [{
+    "name": "cordova-android",
+    "version": ">=5.0.0"
+  }],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "septnet",
+  "license": "ISC"
+}
