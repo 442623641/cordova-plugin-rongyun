@@ -27,8 +27,9 @@ typedef void(^Completion)(BOOL isSucc, RCConnectErrorCode code);
 /**
  * 初始化
  */
-- (void)initWithAppKey:(NSString *)aKey;
+//- (void)initWithAppKey:(NSString *)aKey config:(NSDictionary *)config;
 
+- (void)initWithConfig:(NSDictionary *)config;
 /**
  * 根据手机号获取用户的数据
  *  response -> {phone,imtoken,id,name,avatar}
@@ -68,19 +69,9 @@ typedef void(^Completion)(BOOL isSucc, RCConnectErrorCode code);
 - (NSInteger)getUnReadMessageCountWithConvType:(RCConversationType)aType;
 
 /**
- * 更新系统未读消息  type = 0 -> 系统消息  type = 1 -> 公司消息
+ * 更新系统未读消息  根据user_config里数据的顺序
  */
-- (void)updateSystemMessageType:(NSInteger)type count:(NSInteger)count;
-
-/**
- * 更新系统未读消息数111
- */
-//- (void)updateSystemMessageCount:(NSInteger)count;
-
-/**
- * 更新公司未读消息数
- */
-//- (void)updateCompanyMessageCount:(NSInteger)count;
+- (void)updateSystemMessageIndex:(NSInteger)index count:(NSInteger)count;
 
 /**
  * showconvList addsubview
@@ -119,9 +110,11 @@ typedef void(^Completion)(BOOL isSucc, RCConnectErrorCode code);
 
 - (void)rongyunUpdateUnReadMsgCount:(NSInteger)count;
 
-- (void)rongyunDidClickCompanyNotice;
+//- (void)rongyunDidClickCompanyNotice;
 
-- (void)rongyunDidClickSystemNotice;
+//- (void)rongyunDidClickSystemNotice;
+
+- (void)rongyunDidSelectSysMsgWithIndex:(NSInteger)index;
 
 - (void)rongyunSystemMessageDidChange;
 

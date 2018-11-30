@@ -22,15 +22,15 @@
 @property (nonatomic,strong) CDVInvokedUrlCommand *webListenerNotifyCommand;
 
 
-
 @end
 
 
 @implementation Rongyun
 
+
 #pragma mark 初始化融云
 - (void)init:(CDVInvokedUrlCommand*)command{
- 
+
     NSDictionary* userInfo = [command.arguments objectAtIndex:0];
     
     [QTIMBridgeManager defaultManager].delegate = self;
@@ -153,7 +153,7 @@
     
     NSUInteger unread = [[QTIMBridgeManager defaultManager] getAllUnReadMessageCount];
 
-    [[QTIMBridgeManager defaultManager] updateSystemMessageType:1 count:[webunRead integerValue]];
+    [[QTIMBridgeManager defaultManager] updateSystemMessageIndex:0 count:[webunRead integerValue]];
     
     NSInteger count = [webunRead integerValue] + unread;
     
@@ -173,13 +173,26 @@
     
     NSUInteger unread = [[QTIMBridgeManager defaultManager] getAllUnReadMessageCount];
     
-    [[QTIMBridgeManager defaultManager] updateSystemMessageType:0 count:[webunRead integerValue]];
+    [[QTIMBridgeManager defaultManager] updateSystemMessageIndex:1 count:[webunRead integerValue]];
     
     NSInteger count = [webunRead integerValue] + unread;
     
     [self badgeCount:count];
 
     CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsNSInteger:count];
+    
+    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    
+}
+
+/*
+ * 融云登出
+ */
+- (void)logout:(CDVInvokedUrlCommand*)command{
+    
+    [[QTIMBridgeManager defaultManager] logout];
+ 
+    CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@""];
     
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
     
@@ -218,6 +231,8 @@
     result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:userInfo];
     [result setKeepCallbackAsBool:true];
     [self.commandDelegate sendPluginResult:result callbackId:self.messageCommand.callbackId];
+    
+   
 }
 
 - (void)rongyunUpdateUnReadMsgCount:(NSInteger)count{
@@ -243,6 +258,22 @@
     //跳到系统消息
     CDVPluginResult *result;
     result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"system_notice"];
+    [result setKeepCallbackAsBool:true];
+    [self.commandDelegate sendPluginResult:result callbackId:self.notifyCommand.callbackId];
+}
+
+
+- (void)rongyunDidSelectSysMsgWithIndex:(NSInteger)index{
+    
+    NSString *notice;
+    if(index == 0){
+        notice = @"company_notice";
+    }else if(index == 1){
+        notice = @"system_notice";
+    }
+
+    CDVPluginResult *result;
+    result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:notice];
     [result setKeepCallbackAsBool:true];
     [self.commandDelegate sendPluginResult:result callbackId:self.notifyCommand.callbackId];
 }
