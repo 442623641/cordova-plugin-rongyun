@@ -99,7 +99,8 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
                             FrameLayout contentParent = cordova.getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
                             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
                             contentParent.addView(mDiscoverView, lp);
-
+                            EventBus.getDefault().post(new SystemUnreadEvent(1, sysCount));
+                            EventBus.getDefault().post(new SystemUnreadEvent(0, companyCount));
                         }else{
                             mDiscoverView.setVisibility(View.VISIBLE);
                         }
