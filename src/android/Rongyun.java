@@ -250,12 +250,12 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
         SealNotificationReceiver.setListener(new SealNotificationListener() {
             @Override
             public void companyClick(Context context, PushNotificationMessage pushNotificationMessage) {
-                sendResult(callbackContext,new Gson().toJson(pushNotificationMessage));
+                onNotifyTap(callbackContext,pushNotificationMessage);
             }
 
             @Override
             public void systemClick(Context context, PushNotificationMessage pushNotificationMessage) {
-                sendResult(callbackContext,new Gson().toJson(pushNotificationMessage));
+                onNotifyTap(callbackContext,pushNotificationMessage);
             }
         });
 //        RongIM.getInstance().setMessageInterceptor(new RongIM.MessageInterceptor() {
@@ -276,6 +276,13 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
 //                return false;
 //            }
 //        });
+    }
+
+    private void onNotifyTap(final CallbackContext callbackContext,final PushNotificationMessage pushNotificationMessage){
+        Intent intent = new Intent();
+        intent.setClass(cordova.getActivity(), cordova.getActivity().getClass() );
+        cordova.getActivity().startActivity(intent);
+        sendResult(callbackContext,new Gson().toJson(pushNotificationMessage));
     }
     private void sendResult(final CallbackContext callbackContext,String data){
         PluginResult result = new PluginResult(PluginResult.Status.OK, data);
