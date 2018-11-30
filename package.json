@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-rongyun",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "description": "Cordova Rongyun Plugin,use Rongyun IM SDK",
   "cordova": {
     "id": "cordova-plugin-rongyun",
