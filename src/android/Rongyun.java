@@ -52,6 +52,9 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
     final String KEY_FIXED_PIXELS_TOP="fixedPixelsTop";
     final String KEY_FIXED_PIXELS_BOTTOM="fixedPixelsBottom";
 
+     int sysCount=0;
+     int companyCount=0;
+
     public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
         if (action.equals("init")) {
             final JSONObject opt= args.getJSONObject(0);
@@ -191,9 +194,9 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
                 @Override
                 public void run() {
                     try {
-                        int count=args.getInt(0);
-                        EventBus.getDefault().post(new SystemUnreadEvent(0, count));
-                        sendUnreadCount(count,callbackContext);
+                        companyCount=args.getInt(0);
+                        EventBus.getDefault().post(new SystemUnreadEvent(0, companyCount));
+                        sendUnreadCount(callbackContext);
                     } catch (JSONException e) {
                         e.printStackTrace();
                         callbackContext.error("JSONException");
@@ -206,9 +209,9 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
                 @Override
                 public void run() {
                     try {
-                        int count=args.getInt(0);
-                        EventBus.getDefault().post(new SystemUnreadEvent(1, count));
-                        sendUnreadCount(count,callbackContext);
+                        sysCount=args.getInt(0);
+                        EventBus.getDefault().post(new SystemUnreadEvent(1, sysCount));
+                        sendUnreadCount(callbackContext);
                     } catch (JSONException e) {
                         e.printStackTrace();
                         callbackContext.error("JSONException");
@@ -297,35 +300,22 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
      */
     private void onBadge(final CallbackContext callbackContext) throws JSONException{
 
-        sendUnreadCount();
+        sendUnreadCount(null);
         RongIM.getInstance().addUnReadMessageCountChangedObserver(this, Conversation.ConversationType.PRIVATE,
                 Conversation.ConversationType.GROUP, Conversation.ConversationType.PUBLIC_SERVICE,
                 Conversation.ConversationType.APP_PUBLIC_SERVICE);
     }
 
-    private void sendUnreadCount(){
+
+    private void sendUnreadCount(final CallbackContext callbackContext){
         RongIM.getInstance().getUnreadCount(new RongIMClient.ResultCallback<Integer>() {
                                                 @Override
                                                 public void onSuccess(Integer integer) {
-                                                    onCountChanged(integer);
-                                                }
-
-                                                @Override
-                                                public void onError(RongIMClient.ErrorCode errorCode) {
-                                                    badgeCallbackContext.error("code:"+errorCode.getValue()+",message:"+errorCode.getMessage());
-                                                }
-                                            },
-                Conversation.ConversationType.PRIVATE,
-                Conversation.ConversationType.GROUP,
-                Conversation.ConversationType.PUBLIC_SERVICE,
-                Conversation.ConversationType.APP_PUBLIC_SERVICE);
-    }
-
-    private void sendUnreadCount(final int increment,final CallbackContext callbackContext){
-        RongIM.getInstance().getUnreadCount(new RongIMClient.ResultCallback<Integer>() {
-                                                @Override
-                                                public void onSuccess(Integer integer) {
-                                                    onCountChanged(integer+increment,callbackContext);
+                                                    if (callbackContext == null) {
+                                                        onCountChanged(integer + sysCount + companyCount);
+                                                    } else {
+                                                        onCountChanged(integer + sysCount + companyCount, callbackContext);
+                                                    }
                                                 }
 
                                                 @Override
@@ -338,7 +328,6 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
                 Conversation.ConversationType.PUBLIC_SERVICE,
                 Conversation.ConversationType.APP_PUBLIC_SERVICE);
     }
-
 
 
     private void onClick(final CallbackContext callbackContext){
@@ -354,8 +343,6 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
             }
         });
     }
-
-
 
     @Override
     public void onCountChanged(int i) {
