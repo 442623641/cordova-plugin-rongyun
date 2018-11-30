@@ -28,8 +28,8 @@ module.exports = function(context) {
 
                 var result = data.replace(/<application/g, '<application android:name="' + appClass + '"');
                 var taskTag = 'android:launchMode="singleTop" android:name="MainActivity"'
-                if (data.indexOf(taskTag) > -1) {
-                    result = data.replace(taskTag, 'android:launchMode="singleTask" android:name="MainActivity"');
+                if (result.indexOf(taskTag) > -1) {
+                    result = result.replace(taskTag, 'android:launchMode="singleTask" android:name="MainActivity"');
                     console.log('android launchMode replace to singleTask');
                 }
 
