@@ -1,87 +1,128 @@
 <?xml version='1.0' encoding='utf-8'?>
 <plugin id="cordova-plugin-rongyun" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
-  <hook type="after_plugin_install" src="scripts/after_plugin_install.js" />
-  <hook type="before_plugin_rm" src="scripts/before_plugin_rm.js" />
-  <preference name="GD_KEY" default="61c290150f9abafb4dc9ee0eb55cf04f" />
-  <name>Rongyun</name>
-  <description>Cordova Rongyun Plugin,use Rongyun SDK</description>
-  <license>Apache 2.0</license>
-  <keywords>cordova,Rongyun,IM</keywords>
-  <engines>
-    <engine name="cordova-android" version=">=5.0.0" />
-  </engines>
-  <js-module src="www/rongyun.js" name="Rongyun">
-    <clobbers target="Rongyun" />
-  </js-module>
-  <!--添加Android平台  -->
-  <platform name="android">
-    <config-file target="res/xml/config.xml" parent="/*">
-      <!-- JS调用时的名字 -->
-      <feature name="Rongyun">
-        <!-- value：的值是对应的插件中ToastDemo.java存放的路径 -->
-        <param name="android-package" value="com.rongyun.im.Rongyun" />
-        <param name="onload" value="true" />
-      </feature>
-    </config-file>
-    <config-file target="AndroidManifest.xml" parent="/manifest/application">
-      <!--主页面-->
-      <activity android:name="cn.rongcloud.im.ui.activity.IMMainActivity" android:configChanges="orientation|keyboardHidden|screenSize" android:launchMode="singleTask" android:screenOrientation="portrait" android:windowSoftInputMode="stateHidden|adjustPan">
-        <intent-filter>
-          <action android:name="android.intent.action.VIEW" />
-          <category android:name="android.intent.category.DEFAULT" />
-          <data android:host="${applicationId}" android:pathPrefix="/push_message" android:scheme="rong" />
-        </intent-filter>
-      </activity>
-      <!--公众-->
-      <activity android:name="cn.rongcloud.im.ui.activity.PublicServiceInfoActivity" android:screenOrientation="portrait">
-        <intent-filter>
-          <action android:name="android.intent.action.VIEW" />
-          <category android:name="android.intent.category.DEFAULT" />
-          <data android:host="${applicationId}" android:pathPrefix="/publicServiceProfile" android:scheme="rong" />
-        </intent-filter>
-        <intent-filter>
-          <action android:name="android.intent.action.VIEW" />
-          <category android:name="android.intent.category.DEFAULT" />
-          <data android:host="${applicationId}" android:pathPrefix="/publicServiceInfo" android:scheme="rong" />
-        </intent-filter>
-      </activity>
-      <!--聚合会话列表-->
-      <activity android:name="cn.rongcloud.im.ui.activity.SubConversationListActivity" android:launchMode="singleTask" android:screenOrientation="portrait" android:windowSoftInputMode="stateHidden|adjustResize">
-        <intent-filter>
-          <action android:name="android.intent.action.VIEW" />
-          <category android:name="android.intent.category.DEFAULT" />
-          <data android:host="${applicationId}" android:path="/subconversationlist" android:scheme="rong" />
-        </intent-filter>
-      </activity>
-      <!--会话列表-->
-      <activity android:name="cn.rongcloud.im.ui.activity.ConversationListActivity" android:launchMode="singleTask" android:screenOrientation="portrait" android:windowSoftInputMode="stateHidden|adjustResize">
-        <intent-filter>
-          <action android:name="android.intent.action.VIEW" />
-          <category android:name="android.intent.category.DEFAULT" />
-          <data android:host="${applicationId}" android:path="/conversationlist" android:scheme="rong" />
-        </intent-filter>
-      </activity>
-      <!--会话页面-->
-      <activity android:name="cn.rongcloud.im.ui.activity.ConversationActivity" android:launchMode="singleTop" android:screenOrientation="portrait" android:windowSoftInputMode="stateHidden|adjustResize">
-        <intent-filter>
-          <action android:name="android.intent.action.VIEW" />
-          <category android:name="android.intent.category.DEFAULT" />
-          <data android:host="${applicationId}" android:pathPrefix="/conversation/" android:scheme="rong" />
-        </intent-filter>
-      </activity>
-      <meta-data android:name="com.amap.api.v2.apikey" android:value="$GD_KEY" />
-    </config-file>
-    <source-file src="src/android/Rongyun.java" target-dir="src/com/rongyun/im" />
-    <source-file src="src/android/AppContext.java" target-dir="src/com/rongyun/im" />
-    <asset src="rongyun_config.json" target="rongyun_config.json" />
-    <lib-file src="src/android/libs/CallKit.aar" />
-    <lib-file src="src/android/libs/CallLib.aar" />
-    <lib-file src="src/android/libs/Contactcard.aar" />
-    <lib-file src="src/android/libs/IMKit.aar" />
-    <lib-file src="src/android/libs/IMLib.aar" />
-    <lib-file src="src/android/libs/Seal.aar" />
-    <lib-file src="src/android/libs/Sticker.aar" />
-    <framework src="com.android.support:multidex:1.0.2" />
-    <framework src="build-extras.gradle" custom="true" type="gradleReference" />
-  </platform>
+    <hook type="after_plugin_install" src="scripts/after_plugin_install.js" />
+    <hook type="before_plugin_rm" src="scripts/before_plugin_rm.js" />
+    <preference name="GD_KEY" default="61c290150f9abafb4dc9ee0eb55cf04f" />
+    <name>Rongyun</name>
+    <description>Cordova Rongyun Plugin,use Rongyun SDK</description>
+    <license>Apache 2.0</license>
+    <keywords>cordova,Rongyun,IM</keywords>
+    <engines>
+        <engine name="cordova-android" version=">=5.0.0" />
+    </engines>
+    <js-module src="www/rongyun.js" name="Rongyun">
+        <clobbers target="Rongyun" />
+    </js-module>
+    <dependency id="com.darktalker.cordova.screenshot" url="https://github.com/442623641/cordova-screenshot.git" />
+    <!--添加Android平台  -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <!-- JS调用时的名字 -->
+            <feature name="Rongyun">
+                <!-- value：的值是对应的插件中ToastDemo.java存放的路径 -->
+                <param name="android-package" value="com.rongyun.im.Rongyun" />
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <!--主页面-->
+            <activity android:name="cn.rongcloud.im.ui.activity.IMMainActivity" android:configChanges="orientation|keyboardHidden|screenSize" android:launchMode="singleTask" android:screenOrientation="portrait" android:windowSoftInputMode="stateHidden|adjustPan">
+                <intent-filter>
+                    <action android:name="android.intent.action.VIEW" />
+                    <category android:name="android.intent.category.DEFAULT" />
+                    <data android:host="${applicationId}" android:pathPrefix="/push_message" android:scheme="rong" />
+                </intent-filter>
+            </activity>
+            <!--公众-->
+            <activity android:name="cn.rongcloud.im.ui.activity.PublicServiceInfoActivity" android:screenOrientation="portrait">
+                <intent-filter>
+                    <action android:name="android.intent.action.VIEW" />
+                    <category android:name="android.intent.category.DEFAULT" />
+                    <data android:host="${applicationId}" android:pathPrefix="/publicServiceProfile" android:scheme="rong" />
+                </intent-filter>
+                <intent-filter>
+                    <action android:name="android.intent.action.VIEW" />
+                    <category android:name="android.intent.category.DEFAULT" />
+                    <data android:host="${applicationId}" android:pathPrefix="/publicServiceInfo" android:scheme="rong" />
+                </intent-filter>
+            </activity>
+            <!--聚合会话列表-->
+            <activity android:name="cn.rongcloud.im.ui.activity.SubConversationListActivity" android:launchMode="singleTask" android:screenOrientation="portrait" android:windowSoftInputMode="stateHidden|adjustResize">
+                <intent-filter>
+                    <action android:name="android.intent.action.VIEW" />
+                    <category android:name="android.intent.category.DEFAULT" />
+                    <data android:host="${applicationId}" android:path="/subconversationlist" android:scheme="rong" />
+                </intent-filter>
+            </activity>
+            <!--会话列表-->
+            <activity android:name="cn.rongcloud.im.ui.activity.ConversationListActivity" android:launchMode="singleTask" android:screenOrientation="portrait" android:windowSoftInputMode="stateHidden|adjustResize">
+                <intent-filter>
+                    <action android:name="android.intent.action.VIEW" />
+                    <category android:name="android.intent.category.DEFAULT" />
+                    <data android:host="${applicationId}" android:path="/conversationlist" android:scheme="rong" />
+                </intent-filter>
+            </activity>
+            <!--会话页面-->
+            <activity android:name="cn.rongcloud.im.ui.activity.ConversationActivity" android:launchMode="singleTop" android:screenOrientation="portrait" android:windowSoftInputMode="stateHidden|adjustResize">
+                <intent-filter>
+                    <action android:name="android.intent.action.VIEW" />
+                    <category android:name="android.intent.category.DEFAULT" />
+                    <data android:host="${applicationId}" android:pathPrefix="/conversation/" android:scheme="rong" />
+                </intent-filter>
+            </activity>
+            <provider android:name="android.support.v4.content.FileProvider" android:authorities="${applicationId}.FileProvider" android:exported="false" android:grantUriPermissions="true">
+                <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/rc_file_path" />
+            </provider>
+            <meta-data android:name="com.amap.api.v2.apikey" android:value="$GD_KEY" />
+        </config-file>
+        <source-file src="src/android/Rongyun.java" target-dir="src/com/rongyun/im" />
+        <source-file src="src/android/AppContext.java" target-dir="src/com/rongyun/im" />
+        <asset src="rongyun_config.json" target="rongyun_config.json" />
+        <lib-file src="src/android/libs/CallKit.aar" />
+        <lib-file src="src/android/libs/CallLib.aar" />
+        <lib-file src="src/android/libs/Contactcard.aar" />
+        <lib-file src="src/android/libs/IMKit.aar" />
+        <lib-file src="src/android/libs/IMLib.aar" />
+        <lib-file src="src/android/libs/Seal.aar" />
+        <lib-file src="src/android/libs/Sticker.aar" />
+        <framework src="com.android.support:multidex:1.0.2" />
+        <framework src="com.android.support:recyclerview-v7:27.1.1" />
+        <framework src="build-extras.gradle" custom="true" type="gradleReference" />
+    </platform>
+    <!--添加IOS平台  -->
+    <platform name="ios">
+        <config-file parent="/*" target="config.xml">
+            <feature name="Rongyun">
+                <param name="ios-package" value="Rongyun" />
+            </feature>
+        </config-file>
+        <config-file target="*-Info.plist" parent="UIBackgroundModes">
+            <array>
+                <string>location</string>
+                <string>remote-notification</string>
+            </array>
+        </config-file>
+        <header-file src="src/ios/SeptnetRongyunPlugin.h" />
+        <source-file src="src/ios/SeptnetRongyunPlugin.m" />
+        <header-file src="src/ios/Rongyun.h" />
+        <source-file src="src/ios/Rongyun.m" />
+        <header-file src="src/ios/AppDelegate+QTIM.h" />
+        <source-file src="src/ios/AppDelegate+QTIM.m" />
+        <header-file src="src/ios/CDVAppDelegate+Root.h" />
+        <source-file src="src/ios/CDVAppDelegate+Root.m" />
+        <header-file src="src/ios/CDVViewController+Navigation.h" />
+        <source-file src="src/ios/CDVViewController+Navigation.m" />
+        <framework src="src/ios/RongyunSdk/QTIMModule.framework" custom="true" />
+        <framework src="src/ios/RongyunSdk/RongIMKit.framework" custom="true" />
+        <framework src="src/ios/RongyunSdk/RongIMLib.framework" custom="true" />
+        <framework src="src/ios/RongyunSdk/RongContactCard.framework" custom="true" />
+        <source-file src="src/ios/RongyunSdk/libopencore-amrnb.a" framework="true" />
+        <resource-file src="src/ios/RongyunSdk/QTIMModuleBundle.bundle" />
+        <resource-file src="src/ios/RongyunSdk/Emoji.plist" />
+        <resource-file src="src/ios/RongyunSdk/RCColor.plist" />
+        <resource-file src="src/ios/RongyunSdk/release_notes_ios.txt" />
+        <resource-file src="src/ios/RongyunSdk/RongCloud.bundle" />
+        <resource-file src="src/ios/RongyunSdk/en.lproj" />
+        <resource-file src="src/ios/RongyunSdk/zh-Hans.lproj" />
+    </platform>
 </plugin>

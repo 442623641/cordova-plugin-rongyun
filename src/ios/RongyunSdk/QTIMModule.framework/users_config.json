@@ -1,0 +1,22 @@
+{
+    "appkey":"pgyu6atqpe7ku",
+    "base_url":"http://115.28.115.220:3000",
+    "h-users": [
+                {
+                "id": "rong_system_company",
+                "name": "公司通知",
+                "portrait": "http://115.28.115.220:3000/images/notify.png"
+                },
+                {
+                "id": "rong_system_notice",
+                "name": "系统消息",
+                "portrait": "http://115.28.115.220:3000/images/message.png"
+                },
+                {
+                "id": "rong_system_friend",
+                "name": "通讯录",
+                "portrait": "http://115.28.115.220:3000/images/address.png"
+                }
+                ],
+    "display-friends": false
+}

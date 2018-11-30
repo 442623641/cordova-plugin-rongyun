@@ -1,0 +1,6 @@
+framework module QTIMModule {
+  umbrella header "QTIMModule.h"
+
+  export *
+  module * { export * }
+}

@@ -1,18 +1,14 @@
 package com.rongyun.im;
 
 import android.app.LocalActivityManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,14 +16,15 @@ import org.json.JSONObject;
 
 import cn.rongcloud.im.IMApp;
 import cn.rongcloud.im.SealAppContext;
-import cn.rongcloud.im.SealConst;
+import cn.rongcloud.im.SealMessageListener;
 import cn.rongcloud.im.SealNotificationListener;
 import cn.rongcloud.im.SealNotificationReceiver;
-import cn.rongcloud.im.SealSystemListener;
+import cn.rongcloud.im.SealUIListener;
 import cn.rongcloud.im.SealUserInfoManager;
-import cn.rongcloud.im.server.broadcast.BroadcastManager;
+import cn.rongcloud.im.model.SystemUnreadEvent;
 import cn.rongcloud.im.ui.activity.IMMainActivity;
 import cn.rongcloud.im.ui.widget.MessageCenterHeaderView;
+import io.rong.eventbus.EventBus;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.manager.IUnReadMessageObserver;
 import io.rong.imlib.RongIMClient;
@@ -40,7 +37,6 @@ import com.google.gson.Gson;
 public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
 
     View mDiscoverView;
-    Boolean attached=false;
     /** JS回调点击事件对象 */
     static CallbackContext actionCallbackContext = null;
     /** JS回调消息通知事件对象 */
@@ -48,18 +44,13 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
     /** JS回调消息数事件对象 */
     static CallbackContext badgeCallbackContext = null;
 
-    final String KEY_RONGYUN_TOKEN = "rongyun_token";
-    final String KEY_USER_ID = "userId";
+    /** JS回调消息数事件对象 */
+    static CallbackContext notifysCallbackContext = null;
+
     final String KEY_PHONE = "phone";
-    final String KEY_USER_NAME = "userName";
     final String KEY_ACCESS_KEY = "accessKey";
     final String KEY_FIXED_PIXELS_TOP="fixedPixelsTop";
     final String KEY_FIXED_PIXELS_BOTTOM="fixedPixelsBottom";
-
-    @Override
-    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        super.initialize(cordova, webView);
-    }
 
     public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
         if (action.equals("init")) {
@@ -179,25 +170,78 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
                 });
 
             }
+        }else if(action.equals("onNotify")){
+            if(notifysCallbackContext==null) {
+                notifysCallbackContext = callbackContext;
+                cordova.getThreadPool().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            onNotify(callbackContext);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                });
+
+            }
+        }else if(action.equals("setCompanyBadge")){
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        int count=args.getInt(0);
+                        EventBus.getDefault().post(new SystemUnreadEvent(0, count));
+                        sendUnreadCount(count,callbackContext);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        callbackContext.error("JSONException");
+                    }
+                }
+            });
+        } else if(action.equals("setSystemBadge")){
+
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        int count=args.getInt(0);
+                        EventBus.getDefault().post(new SystemUnreadEvent(1, count));
+                        sendUnreadCount(count,callbackContext);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        callbackContext.error("JSONException");
+                    }
+                }
+
+            });
         }
         return true;
     }
 
-
     /**
-     *
+     * 消息通知
+     * @param callbackContext
+     * @throws JSONException
      */
-    private void setConfig(JSONObject opt) throws JSONException {
-        SharedPreferences sp = cordova.getActivity().getSharedPreferences("config", Context.MODE_PRIVATE);
-        sp.edit().putString("loginToken", opt.getString(KEY_RONGYUN_TOKEN)).commit();
-        sp.edit().putString(KEY_ACCESS_KEY, opt.getString(KEY_ACCESS_KEY)).commit();
-        sp.edit().putString(SealConst.SEALTALK_LOGIN_ID, opt.getString(KEY_USER_ID)).commit();
-        sp.edit().putString(SealConst.SEALTALK_LOGIN_NAME,  opt.getString(KEY_USER_NAME)).commit();
-        sp.edit().putString(SealConst.SEALTALK_LOGING_PHONE, opt.getString(KEY_PHONE)).commit();
+    private void onNotify(final CallbackContext callbackContext) throws JSONException {
+
+        SealAppContext.getInstance().setSealMessageListener(new SealMessageListener() {
+            @Override
+            public void companyMessage(Message message) {
+                sendResult(callbackContext,"company_notice");
+            }
+
+            @Override
+            public void systemMessage(Message message) {
+                sendResult(callbackContext,"system_notice");
+            }
+        });
     }
 
     /**
-     * 消息通知
+     * 点击消息通知栏
      * @param callbackContext
      * @throws JSONException
      */
@@ -246,33 +290,77 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
      */
     private void onBadge(final CallbackContext callbackContext) throws JSONException{
 
-        RongIM.getInstance().getTotalUnreadCount(new RongIMClient.ResultCallback<Integer>() {
-            @Override
-            public void onSuccess(Integer integer) {
-                onCountChanged(integer);
-            }
-
-            @Override
-            public void onError(RongIMClient.ErrorCode errorCode) {
-                callbackContext.error("code:"+errorCode.getValue()+",message:"+errorCode.getMessage());
-            }
-        });
+        sendUnreadCount();
         RongIM.getInstance().addUnReadMessageCountChangedObserver(this, Conversation.ConversationType.PRIVATE,
-                Conversation.ConversationType.GROUP,Conversation.ConversationType.SYSTEM, Conversation.ConversationType.PUBLIC_SERVICE,
+                Conversation.ConversationType.GROUP, Conversation.ConversationType.PUBLIC_SERVICE,
                 Conversation.ConversationType.APP_PUBLIC_SERVICE);
     }
 
-    private void onClick(final CallbackContext callbackContext){
-        MessageCenterHeaderView.setListener(new SealSystemListener() {
-            @Override
-            public boolean onClick(String s) {
-                PluginResult result = new PluginResult(PluginResult.Status.OK, s);
-                result.setKeepCallback(true);
-                callbackContext.sendPluginResult(result);
+    private void sendUnreadCount(){
+        RongIM.getInstance().getUnreadCount(new RongIMClient.ResultCallback<Integer>() {
+                                                @Override
+                                                public void onSuccess(Integer integer) {
+                                                    onCountChanged(integer);
+                                                }
 
-                return false;
+                                                @Override
+                                                public void onError(RongIMClient.ErrorCode errorCode) {
+                                                    badgeCallbackContext.error("code:"+errorCode.getValue()+",message:"+errorCode.getMessage());
+                                                }
+                                            },
+                Conversation.ConversationType.PRIVATE,
+                Conversation.ConversationType.GROUP,
+                Conversation.ConversationType.PUBLIC_SERVICE,
+                Conversation.ConversationType.APP_PUBLIC_SERVICE);
+    }
+
+    private void sendUnreadCount(final int increment,final CallbackContext callbackContext){
+        RongIM.getInstance().getUnreadCount(new RongIMClient.ResultCallback<Integer>() {
+                                                @Override
+                                                public void onSuccess(Integer integer) {
+                                                    onCountChanged(integer+increment,callbackContext);
+                                                }
+
+                                                @Override
+                                                public void onError(RongIMClient.ErrorCode errorCode) {
+                                                    callbackContext.error("code:"+errorCode.getValue()+",message:"+errorCode.getMessage());
+                                                }
+                                            },
+                Conversation.ConversationType.PRIVATE,
+                Conversation.ConversationType.GROUP,
+                Conversation.ConversationType.PUBLIC_SERVICE,
+                Conversation.ConversationType.APP_PUBLIC_SERVICE);
+    }
+
+
+
+    private void onClick(final CallbackContext callbackContext){
+        MessageCenterHeaderView.setListener(new SealUIListener() {
+            @Override
+            public void companyClick() {
+                sendResult(callbackContext,"company_notice");
+            }
+
+            @Override
+            public void systemClick() {
+                sendResult(callbackContext,"system_notice");
             }
         });
+    }
+
+
+
+    @Override
+    public void onCountChanged(int i) {
+        PluginResult result = new PluginResult(PluginResult.Status.OK, i);
+        result.setKeepCallback(true);
+        badgeCallbackContext.sendPluginResult(result);
+    }
+
+    public void onCountChanged(final int i,final CallbackContext callbackContext) {
+        PluginResult result = new PluginResult(PluginResult.Status.OK, i);
+        result.setKeepCallback(true);
+        callbackContext.sendPluginResult(result);
     }
 
     @Override
@@ -285,11 +373,4 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
         }
     }
 
-
-    @Override
-    public void onCountChanged(int i) {
-        PluginResult result = new PluginResult(PluginResult.Status.OK, i);
-        result.setKeepCallback(true);
-        badgeCallbackContext.sendPluginResult(result);
-    }
 }
