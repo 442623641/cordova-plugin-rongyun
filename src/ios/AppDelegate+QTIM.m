@@ -25,7 +25,16 @@
     NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<" withString:@""] stringByReplacingOccurrencesOfString:@">" withString:@""] stringByReplacingOccurrencesOfString:@" " withString:@""];
     [[RCIMClient sharedRCIMClient] setDeviceToken:token];
 }
-
+- (NSDictionary *)userJson{
+    NSBundle *bundleClass = [NSBundle bundleForClass:[self class]];
+    
+    NSString *bundlePath = [[bundleClass resourcePath] stringByAppendingString:@"/www/users_config.json"];
+    
+    NSData *data = [[NSData alloc] initWithContentsOfFile:bundlePath];
+    
+    return  [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+    
+}
 -(BOOL)swizzled_application:(UIApplication *)application didFinishLaunchingWithOptions:(nullable NSDictionary *)launchOptions
 {
     [self registerAPNS:application];
@@ -33,13 +42,10 @@
 
 //    NSDictionary *infoDicNew = [NSBundle mainBundle].infoDictionary;
 //    NSString *rongyunId = infoDicNew[@"RongyunAppID"];
+
+    NSDictionary *useInfo =  [self userJson];
     
-    NSBundle *bundle = [NSBundle bundleWithPath:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"QTIMModuleBundle.bundle"]];
-    NSString *path = [bundle pathForResource:@"users_config" ofType:@"json"];
-    NSData *data = [[NSData alloc] initWithContentsOfFile:path];
-    NSString *appkey = [[NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil] valueForKey:@"appkey"];
-    
-    [[QTIMBridgeManager defaultManager] initWithAppKey:appkey];
+    [[QTIMBridgeManager defaultManager] initWithConfig:useInfo];
     NSDictionary *remoteNotificationUserInfo = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
     if (nil != remoteNotificationUserInfo) {
         NSDictionary *rc = [remoteNotificationUserInfo objectForKey:@"rc"];
