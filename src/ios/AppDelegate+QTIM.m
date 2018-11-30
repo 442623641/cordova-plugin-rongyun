@@ -28,7 +28,7 @@
 - (NSDictionary *)userJson{
     NSBundle *bundleClass = [NSBundle bundleForClass:[self class]];
     
-    NSString *bundlePath = [[bundleClass resourcePath] stringByAppendingString:@"/www/users_config.json"];
+    NSString *bundlePath = [[bundleClass resourcePath] stringByAppendingString:@"/www/rongyun_config.json"];
     
     NSData *data = [[NSData alloc] initWithContentsOfFile:bundlePath];
     
