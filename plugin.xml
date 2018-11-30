@@ -124,5 +124,6 @@
         <resource-file src="src/ios/RongyunSdk/RongCloud.bundle" />
         <resource-file src="src/ios/RongyunSdk/en.lproj" />
         <resource-file src="src/ios/RongyunSdk/zh-Hans.lproj" />
+        <asset src="rongyun_config.json" target="rongyun_config.json" />
     </platform>
 </plugin>
