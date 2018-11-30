@@ -73,6 +73,7 @@
             <provider android:name="android.support.v4.content.FileProvider" android:authorities="${applicationId}.FileProvider" android:exported="false" android:grantUriPermissions="true">
                 <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/rc_file_path" />
             </provider>
+            <meta-data  android:name="android.max_aspect"  android:value="2.4" />
             <meta-data android:name="com.amap.api.v2.apikey" android:value="$GD_KEY" />
         </config-file>
         <source-file src="src/android/Rongyun.java" target-dir="src/com/rongyun/im" />
