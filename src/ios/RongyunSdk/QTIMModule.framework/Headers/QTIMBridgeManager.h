@@ -26,11 +26,6 @@ typedef void(^Completion)(BOOL isSucc, RCConnectErrorCode code);
 
 + (instancetype)defaultManager;
 
-/**
- * 初始化
- */
-//- (void)initWithAppKey:(NSString *)aKey config:(NSDictionary *)config;
-
 - (void)initWithConfig:(NSDictionary *)config;
 /**
  * 根据手机号获取用户的数据
@@ -61,7 +56,7 @@ typedef void(^Completion)(BOOL isSucc, RCConnectErrorCode code);
 - (void)logout;
 
 /**
- * 获取全部未读会话的数量
+ * 获取全部的个人以及群组未读消息数
  */
 - (NSInteger)getAllUnReadMessageCount;
 
@@ -91,8 +86,6 @@ typedef void(^Completion)(BOOL isSucc, RCConnectErrorCode code);
 
 - (void)rongyunconnectStatus:(NSString *)status;
 
-//- (void)rongyunReceivedMessage:(NSDictionary *)message;
-
 - (void)rongyunReceivedAppInActiveNotificationWithUserInfo:(NSDictionary *)userInfo;
 /**
  * 返回的数据格式
@@ -111,10 +104,6 @@ typedef void(^Completion)(BOOL isSucc, RCConnectErrorCode code);
 - (void)rongyunReceivedAppActiveNotificationWithUserInfo:(NSDictionary *)userInfo;
 
 - (void)rongyunUpdateUnReadMsgCount:(NSInteger)count;
-
-//- (void)rongyunDidClickCompanyNotice;
-
-//- (void)rongyunDidClickSystemNotice;
 
 - (void)rongyunDidSelectSysMsgWithIndex:(NSInteger)index;
 
