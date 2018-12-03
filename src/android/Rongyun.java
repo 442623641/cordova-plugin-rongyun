@@ -38,14 +38,14 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
 
     View mDiscoverView;
     /** JS回调点击事件对象 */
-    static CallbackContext actionCallbackContext = null;
+    CallbackContext actionCallbackContext = null;
     /** JS回调消息通知事件对象 */
-    static CallbackContext messageCallbackContext = null;
+    CallbackContext messageCallbackContext = null;
     /** JS回调消息数事件对象 */
-    static CallbackContext badgeCallbackContext = null;
+    CallbackContext badgeCallbackContext = null;
 
     /** JS回调消息数事件对象 */
-    static CallbackContext notifysCallbackContext = null;
+    CallbackContext notifysCallbackContext = null;
 
     final String KEY_PHONE = "phone";
     final String KEY_ACCESS_KEY = "accessKey";
@@ -254,12 +254,20 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
         SealNotificationReceiver.setListener(new SealNotificationListener() {
             @Override
             public void companyClick(Context context, PushNotificationMessage pushNotificationMessage) {
-                onNotifyTap(callbackContext,pushNotificationMessage);
+                try {
+                    onNotifyTap(callbackContext,pushNotificationMessage);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
             public void systemClick(Context context, PushNotificationMessage pushNotificationMessage) {
-                onNotifyTap(callbackContext,pushNotificationMessage);
+                try {
+                    onNotifyTap(callbackContext,pushNotificationMessage);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 //        RongIM.getInstance().setMessageInterceptor(new RongIM.MessageInterceptor() {
@@ -282,18 +290,23 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
 //        });
     }
 
-    private void onNotifyTap(final CallbackContext callbackContext,final PushNotificationMessage pushNotificationMessage){
+    private void onNotifyTap(final CallbackContext callbackContext,final PushNotificationMessage pushNotificationMessage) throws JSONException {
         Intent intent = new Intent();
         intent.setClass(cordova.getActivity(), cordova.getActivity().getClass() );
         cordova.getActivity().startActivity(intent);
-        sendResult(callbackContext,new Gson().toJson(pushNotificationMessage));
+        sendResult(callbackContext,new JSONObject(new Gson().toJson(pushNotificationMessage)) );
+
     }
     private void sendResult(final CallbackContext callbackContext,String data){
         PluginResult result = new PluginResult(PluginResult.Status.OK, data);
         result.setKeepCallback(true);
         callbackContext.sendPluginResult(result);
     }
-
+    private void sendResult(final CallbackContext callbackContext,JSONObject data){
+        PluginResult result = new PluginResult(PluginResult.Status.OK, data);
+        result.setKeepCallback(true);
+        callbackContext.sendPluginResult(result);
+    }
     /**
      * 消息数变化
      * @param callbackContext
@@ -313,9 +326,9 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
                                                 @Override
                                                 public void onSuccess(Integer integer) {
                                                     if (callbackContext == null) {
-                                                        onCountChanged(integer + sysCount + companyCount);
+                                                        onCountChanged(integer);
                                                     } else {
-                                                        onCountChanged(integer + sysCount + companyCount, callbackContext);
+                                                        onCountChanged(integer, callbackContext);
                                                     }
                                                 }
 
@@ -347,13 +360,13 @@ public class Rongyun extends CordovaPlugin implements IUnReadMessageObserver {
 
     @Override
     public void onCountChanged(int i) {
-        PluginResult result = new PluginResult(PluginResult.Status.OK, i);
+        PluginResult result = new PluginResult(PluginResult.Status.OK, sysCount+i+companyCount);
         result.setKeepCallback(true);
         badgeCallbackContext.sendPluginResult(result);
     }
 
     public void onCountChanged(final int i,final CallbackContext callbackContext) {
-        PluginResult result = new PluginResult(PluginResult.Status.OK, i);
+        PluginResult result = new PluginResult(PluginResult.Status.OK, sysCount+i+companyCount);
         result.setKeepCallback(true);
         callbackContext.sendPluginResult(result);
     }

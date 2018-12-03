@@ -21,6 +21,8 @@ typedef void(^Completion)(BOOL isSucc, RCConnectErrorCode code);
 @property (nonatomic, weak) id<QTIMBridgeDelegate> delegate;
 
 @property (nonatomic, assign, readonly) CGFloat convListInsetBottom;
+@property (nonatomic, strong, readonly) NSDictionary *firstUnreadDict;
+@property (nonatomic, strong, readonly) NSDictionary *secondUnreadDict;
 
 + (instancetype)defaultManager;
 
